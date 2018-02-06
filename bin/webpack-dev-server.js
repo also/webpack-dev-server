@@ -229,7 +229,7 @@ function processOptions(webpackOptions) {
   if (typeof webpackOptions.then === 'function') {
     webpackOptions.then(processOptions).catch((err) => {
       console.error(err.stack || err);
-      process.exit(); // eslint-disable-line
+      process.exit(1); // eslint-disable-line
     });
     return;
   }
