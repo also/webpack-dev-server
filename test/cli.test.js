@@ -7,6 +7,8 @@ const semver = require('semver');
 const pkg = require('../package.json');
 const runDevServer = require('./helpers/run-webpack-dev-server');
 
+const cliPath = path.resolve(__dirname, '../bin/webpack-dev-server.js');
+
 describe('CLI Dependencies', () => {
   it('should lock down certain dependencies', () => {
     const yargs = pkg.dependencies.yargs;
@@ -26,8 +28,17 @@ describe('CLI', () => {
       .catch(done);
   }).timeout(6000);
 
+  it('should exit with code 1 when an async error occurs', () =>
+    execa(process.execPath, [
+      cliPath, '--config', path.resolve(__dirname, 'fixtures/cli/webpack.config-async-error.js')
+    ], { reject: false })
+      .then((output) => {
+        assert(output.code === 1);
+        assert(output.stderr.includes('expected error in plugin'));
+      })
+  ).timeout(6000);
+
   it('should exit the process when SIGINT is detected', (done) => {
-    const cliPath = path.resolve(__dirname, '../bin/webpack-dev-server.js');
     const examplePath = path.resolve(__dirname, '../examples/cli/public');
     const nodePath = execa.shellSync('which node').stdout;
 
